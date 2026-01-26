@@ -69,6 +69,7 @@
 </body>
 
 </html>
+
 <style>
     body {
         margin: 0px;
@@ -246,6 +247,9 @@
             menu.style.display = 'none';
         }
     });
+
+
+
     const markdownFromDB = `# 标题
 - 列表项 1
 - 列表项 2
@@ -257,7 +261,10 @@
         height: height,
         mode: 'ir',
         cache: { enable: false },
-        value: markdownFromDB
+        value: markdownFromDB,
+        input: (value) => {
+            console.log('当前输入的内容：', value);
+        }
     });
 
 </script>
