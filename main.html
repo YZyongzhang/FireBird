@@ -55,7 +55,12 @@
 
     <!-- 鼠标右键菜单 -->
     <ul id="context-menu">
-        <li id="add">添加</li>
+        <li id="add">添加
+            <ul id="sub-menu">
+                <li id="add 1">添加item</li>
+                <li id="add 2">添加子项</li>
+            </ul>
+        </li>
         <li id="delete">删除</li>
         <li id="rename">重命名</li>
         <li id="property">属性</li>
@@ -135,7 +140,7 @@
     #editor-wrapper {
         /* flex: 1; */
         width: 100%;
-        height: 100% ;
+        height: 100%;
         /* background-color: blue; */
     }
 
@@ -153,6 +158,20 @@
         width: 150px;
     }
 
+    .sub-menu {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 100%;
+        background: #fff;
+        border: 1px solid #ccc;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        min-width: 120px;
+        z-index: 1000;
+    }
+
     #context-menu li {
         padding: 8px 12px;
         cursor: pointer;
@@ -160,6 +179,19 @@
 
     #context-menu li:hover {
         background-color: #f0f0f0;
+    }
+
+    #context-menu>li:hover .sub-menu {
+        display: block;
+    }
+
+    .sub-menu li {
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    .sub-menu li:hover {
+        background-color: #eee;
     }
 </style>
 
@@ -208,12 +240,13 @@
         menu.style.display = 'none';
     });
 
+
     document.addEventListener('click', function (e) {
         if (e.target !== menu) {
             menu.style.display = 'none';
         }
     });
-  const markdownFromDB = `# 标题
+    const markdownFromDB = `# 标题
 - 列表项 1
 - 列表项 2
 **加粗文字**
