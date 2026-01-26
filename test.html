@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet"
+    href="./css/vditor.css" />
+</head>
+<body>
+
+<div id="editor"></div>
+
+<script src="./js/vditor.js"></script>
+<script>
+  const vditor = new Vditor('editor', {
+    height: 400,
+    mode: 'ir',   // 所见即所得（像飞书）
+    cache: { enable: false },
+  });
+</script>
+
+</body>
+</html>

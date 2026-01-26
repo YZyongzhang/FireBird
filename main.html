@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/vditor.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class=" main_page ">
+        <div class=" left_region ">
+            <div class=" top_profile ">
+
+            </div>
+            <div class=" chose ">
+
+                <div class="accordion">
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">面板 1</div>
+                        <div class="accordion-content">
+                            <p>这里是面板 1 的内容</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">面板 2</div>
+                        <div class="accordion-content">
+                            <p>这里是面板 2 的内容</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header">面板 3</div>
+                        <div class="accordion-content">
+                            <p>这里是面板 3 的内容</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class=" bottom_region "></div>
+        </div>
+
+        <div class="main_content">
+            <div id="editor-wrapper">
+                <div id="editor"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 鼠标右键菜单 -->
+    <ul id="context-menu">
+        <li id="add">添加</li>
+        <li id="delete">删除</li>
+        <li id="rename">重命名</li>
+        <li id="property">属性</li>
+    </ul>
+
+</body>
+
+</html>
+<style>
+    body {
+        margin: 0px;
+    }
+
+    .main_page {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+    }
+
+    .left_region {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        background-color: blue;
+    }
+
+    .top_profile {
+        flex: 1;
+        background-color: antiquewhite;
+    }
+
+    .chose {
+        flex: 10;
+        background-color: rgb(228, 12, 12);
+    }
+
+    .accordion {
+        overflow: hidden;
+    }
+
+    .accordion-header {
+        background-color: #f0f0f0;
+        padding: 15px;
+        cursor: pointer;
+        user-select: none;
+        font-weight: bold;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .accordion-content {
+        max-height: 0;
+        /* 初始折叠 */
+        overflow: hidden;
+        /* 隐藏内容 */
+        transition: max-height 0.3s ease;
+        background-color: #fff;
+        padding: 0 15px;
+    }
+
+
+    .bottom_region {
+        flex: 1;
+        background-color: rgb(6, 157, 107);
+    }
+
+    .main_content {
+        height: 100vh;
+        flex: 5;
+        /* background-color: lightblue; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #editor-wrapper {
+        /* flex: 1; */
+        width: 100%;
+        height: 100% ;
+        /* background-color: blue; */
+    }
+
+
+    #context-menu {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        display: none;
+        z-index: 1000;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        width: 150px;
+    }
+
+    #context-menu li {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    #context-menu li:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+
+<script src="./js/vditor.js"></script>
+
+<script>
+    // 控制折叠面板折叠
+    const headers = document.querySelectorAll('.accordion-header');
+    const menu = document.getElementById('context-menu');
+
+    // 对每一个可选项进行编号
+    // const items = 
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+
+            // 如果已经展开，则收起
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                // 先关闭其他面板（可选，让只展开一个）
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+
+                // 展开当前面板
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+
+        header.addEventListener('contextmenu', function (e) {
+            e.preventDefault(); // 阻止浏览器默认右键菜单
+            console.log('鼠标右键被点击了', e);
+            // 在这里可以添加自定义逻辑，比如显示自定义菜单
+            menu.style.top = e.clientY + 'px';
+            menu.style.left = e.clientX + 'px';
+            menu.style.display = 'block';
+        });
+    });
+
+    menu.addEventListener('click', function (e) {
+        const action = e.target.id;
+        if (action) {
+            console.log('你点击了：', action);
+            // 这里可以写具体逻辑
+            alert('执行操作：' + action);
+        }
+        menu.style.display = 'none';
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target !== menu) {
+            menu.style.display = 'none';
+        }
+    });
+
+    const wrapper = document.getElementById('editor-wrapper');
+    const height = wrapper.clientHeight;
+    const vditor = new Vditor('editor', {
+        height: height,
+        mode: 'ir',
+        cache: { enable: false },
+    });
+
+</script>
