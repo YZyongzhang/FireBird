@@ -213,13 +213,18 @@
             menu.style.display = 'none';
         }
     });
-
+  const markdownFromDB = `# 标题
+- 列表项 1
+- 列表项 2
+**加粗文字**
+`;
     const wrapper = document.getElementById('editor-wrapper');
     const height = wrapper.clientHeight;
     const vditor = new Vditor('editor', {
         height: height,
         mode: 'ir',
         cache: { enable: false },
+        value: markdownFromDB
     });
 
 </script>
