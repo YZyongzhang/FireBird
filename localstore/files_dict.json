@@ -2,8 +2,14 @@
   "Id": 0,
   "Path": {
     "使用教程": [
-      ["初阶" , "localstore/markdown/初阶.md"] ,
-      ["高阶" , "localstore/markdown/高阶.md"]
+      [
+        "初阶",
+        "localstore/markdown/初阶.md"
+      ],
+      [
+        "高阶",
+        "localstore/markdown/高阶.md"
+      ]
     ]
   }
 }

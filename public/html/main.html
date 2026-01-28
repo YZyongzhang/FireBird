@@ -48,8 +48,8 @@
     <ul id="context-menu">
         <li id="add">添加
             <ul id="sub-menu">
-                <li id="add 1">添加item</li>
-                <li id="add 2">添加子项</li>
+                <li id="addFitem">添加父项</li>
+                <li id="addCitem">添加子项</li>
             </ul>
         </li>
         <li id="delete">删除</li>
@@ -251,14 +251,16 @@
 当一只鸟要起飞时，拦都拦不住`;
     const wrapper = document.getElementById('editor-wrapper');
     const height = wrapper.clientHeight;
+    let currentFilePath = ''; // 当前打开的文件路径
     const vditor = new Vditor('editor', {
         height: height,
         mode: 'ir',
         cache: { enable: false },
         value: markdownFromDB,
-        input: (value) => {
+        input: debounce(async (value) => {
             console.log('当前输入的内容：', value);
-        }
+            await saveContent(currentFilePath, value);
+        }, 50)
     });
 
     fetch('/api/get_file')
@@ -290,6 +292,7 @@
 
                 // 点击加载 markdown
                 content.addEventListener('click', () => {
+                    setCurrentFile(path);
                     loadMarkdown(path);
                 });
 
@@ -299,8 +302,9 @@
             itemDiv.appendChild(header);
             itemDiv.appendChild(contents);
             accordion.appendChild(itemDiv);
+            header_listener(header)
+
         });
-        header_listener()
     }
     function loadMarkdown(path) {
         fetch(`/getcontent?path=${encodeURIComponent(path)}`)
@@ -308,7 +312,7 @@
             .then(data => {
                 renderMarkdown(data.content);
             })
-        
+
     }
 
     function renderMarkdown(markdownFromDB) {
@@ -327,11 +331,40 @@
         }
     }
 
-    // 控制折叠面板折叠
-    function header_listener() {
-        const headers = document.querySelectorAll('.accordion-header');
+    function debounce(fn, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
 
-        headers.forEach(header => {
+    function setCurrentFile(path) {
+        currentFilePath = path;
+    }
+
+
+    async function saveContent(path, content) {
+        try {
+            const res = await fetch('/save_content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path, content })
+            });
+            const data = await res.json();
+            if (data.success) {
+                console.log('保存成功');
+            } else {
+                console.error('保存失败', data.error);
+            }
+        } catch (err) {
+            console.error('保存请求失败', err);
+        }
+    }
+
+    // 控制折叠面板折叠
+    function header_listener(header) {
+        
             header.addEventListener('click', () => {
                 const content = header.nextElementSibling;
 
@@ -354,8 +387,9 @@
                 menu.style.top = e.clientY + 'px';
                 menu.style.left = e.clientX + 'px';
                 menu.style.display = 'block';
+                menu.dataset.key = header.textContent
             });
-        });
+        
     }
 
     // 对每一个可选项进行编号
@@ -364,10 +398,16 @@
 
     menu.addEventListener('click', function (e) {
         const action = e.target.id;
-        if (action) {
-            console.log('你点击了：', action);
-            // 这里可以写具体逻辑
-            alert('执行操作：' + action);
+        
+        if (action == "addCitem") {
+            key = menu.dataset.key
+            name = 'testF'
+            fetch('/addCitem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key, name })
+            });
+
         }
         menu.style.display = 'none';
     });
