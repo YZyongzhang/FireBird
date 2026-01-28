@@ -68,7 +68,9 @@
         </li>
         <li id="delete">删除</li>
         <li id="rename">重命名</li>
-        <li id="property">属性</li>
+        <li id="property">属性
+
+        </li>
     </ul>
 
 </body>
@@ -199,7 +201,7 @@
         width: 150px;
     }
 
-    .sub-menu {
+    #sub-menu {
         display: none;
         position: absolute;
         top: 0;
@@ -222,16 +224,16 @@
         background-color: #f0f0f0;
     }
 
-    #context-menu>li:hover .sub-menu {
+    #context-menu>li:hover #sub-menu {
         display: block;
     }
 
-    .sub-menu li {
+    #sub-menu li {
         padding: 6px 12px;
         cursor: pointer;
     }
 
-    .sub-menu li:hover {
+    #sub-menu li:hover {
         background-color: #eee;
     }
 </style>
