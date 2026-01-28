@@ -34,7 +34,7 @@
         height: 100vh;
         width: 100vw;
         /* background-color: black; */
-        background-image: url(./img/src/login_page_background.jpg);
+        background-image: url(/img/src/login_page_background.jpg);
         background-size: cover;
         /* background-position: center; */
         background-repeat: no-repeat;
@@ -91,7 +91,7 @@
         color: white;
     }
 </style>
-
+<script src="/js/axios.js"></script>
 <script>
     const account = [
         ["yongzhang", "123456"]
@@ -104,11 +104,10 @@
         const isValid = account.some(acc => acc[0] === username && acc[1] === password);
 
         if (isValid){
-            window.location.href = "index.html"
+            window.location.href = '/login';
         } else{
             alert("账号密码错误。")
         }
-
     }
 
     )

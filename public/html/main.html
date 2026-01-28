@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/vditor.css">
+    <link rel="stylesheet" href="/css/vditor.css">
     <title>Document</title>
 </head>
 
@@ -12,7 +12,7 @@
     <div class=" main_page ">
         <div class=" left_region ">
             <div class=" top_profile ">
-                <img src="./img/src/avatar.jpg" alt="avatar" class="avatar">
+                <img src="/img/src/avatar.jpg" alt="avatar" class="avatar">
 
                 <div class="user-info">
                     <span class="username">yongzhang</span>
@@ -24,23 +24,9 @@
                 <div class="accordion">
 
                     <div class="accordion-item">
-                        <div class="accordion-header">面板 1</div>
-                        <div class="accordion-content">
-                            <p>这里是面板 1 的内容</p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">面板 2</div>
-                        <div class="accordion-content">
-                            <p>这里是面板 2 的内容</p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">面板 3</div>
-                        <div class="accordion-content">
-                            <p>这里是面板 3 的内容</p>
+                        <div class="accordion-header">欢迎使用</div>
+                        <div class="accordion-contents">
+                            <div class="accordion-content">使用教程</div>
                         </div>
                     </div>
 
@@ -93,7 +79,7 @@
         display: flex;
         flex-direction: column;
         flex: 1;
-        
+
     }
 
     .top_profile {
@@ -154,15 +140,34 @@
         border-bottom: 1px solid #ccc;
     }
 
-    .accordion-content {
+    .accordion-contents {
         max-height: 0;
-        /* 初始折叠 */
         overflow: hidden;
-        /* 隐藏内容 */
         transition: max-height 0.3s ease;
         background-color: #fff;
-        padding: 0 15px;
     }
+
+    /* 单条内容，不再做高度动画 */
+    .accordion-content {
+        padding: 10px 15px;
+        border-top: 1px solid #eee;
+
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+
+        transition: background-color 0.2s ease;
+    }
+
+    .accordion-content:hover {
+        background-color: #f5f7fa;
+        cursor: pointer;
+    }
+
+    .accordion-content.active {
+        background-color: #eef3ff;
+    }
+
 
 
     .bottom_region {
@@ -238,40 +243,124 @@
     }
 </style>
 
-<script src="./js/vditor.js"></script>
+<script src="/js/vditor.js"></script>
 
 <script>
-    // 控制折叠面板折叠
-    const headers = document.querySelectorAll('.accordion-header');
     const menu = document.getElementById('context-menu');
+    const markdownFromDB = `# 欢迎使用狂鸟 
+当一只鸟要起飞时，拦都拦不住`;
+    const wrapper = document.getElementById('editor-wrapper');
+    const height = wrapper.clientHeight;
+    const vditor = new Vditor('editor', {
+        height: height,
+        mode: 'ir',
+        cache: { enable: false },
+        value: markdownFromDB,
+        input: (value) => {
+            console.log('当前输入的内容：', value);
+        }
+    });
+
+    fetch('/api/get_file')
+        .then(res => res.json())
+        .then(data => {
+            renderAccordion(data);
+        });
+
+    function renderAccordion(data) {
+        const accordion = document.getElementsByClassName('accordion')[0];
+
+        Object.entries(data.Path).forEach(([sectionName, items]) => {
+            // 一级标题
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'accordion-item';
+
+            const header = document.createElement('div');
+            header.className = 'accordion-header';
+            header.textContent = sectionName;
+
+            const contents = document.createElement('div');
+            contents.className = 'accordion-contents';
+
+            // 二级内容
+            items.forEach(([title, path]) => {
+                const content = document.createElement('div');
+                content.className = 'accordion-content';
+                content.textContent = title;
+
+                // 点击加载 markdown
+                content.addEventListener('click', () => {
+                    loadMarkdown(path);
+                });
+
+                contents.appendChild(content);
+            });
+
+            itemDiv.appendChild(header);
+            itemDiv.appendChild(contents);
+            accordion.appendChild(itemDiv);
+        });
+        header_listener()
+    }
+    function loadMarkdown(path) {
+        fetch(`/getcontent?path=${encodeURIComponent(path)}`)
+            .then(res => res.json())
+            .then(data => {
+                renderMarkdown(data.content);
+            })
+        
+    }
+
+    function renderMarkdown(markdownFromDB) {
+        if (!vditor) {
+            vditor = new Vditor('editor', {
+                height: 500,
+                mode: 'ir',
+                cache: { enable: false },
+                value: markdownFromDB,
+                input: (value) => {
+                    console.log('当前输入的内容：', value);
+                }
+            });
+        } else {
+            vditor.setValue(markdownFromDB);
+        }
+    }
+
+    // 控制折叠面板折叠
+    function header_listener() {
+        const headers = document.querySelectorAll('.accordion-header');
+
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+
+                // 如果已经展开，则收起
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    // 先关闭其他面板（可选，让只展开一个）
+                    document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+
+                    // 展开当前面板
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+
+            header.addEventListener('contextmenu', function (e) {
+                e.preventDefault(); // 阻止浏览器默认右键菜单
+                console.log('鼠标右键被点击了', e);
+                // 在这里可以添加自定义逻辑，比如显示自定义菜单
+                menu.style.top = e.clientY + 'px';
+                menu.style.left = e.clientX + 'px';
+                menu.style.display = 'block';
+            });
+        });
+    }
 
     // 对每一个可选项进行编号
     // const items = 
-    headers.forEach(header => {
-        header.addEventListener('click', () => {
-            const content = header.nextElementSibling;
 
-            // 如果已经展开，则收起
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-            } else {
-                // 先关闭其他面板（可选，让只展开一个）
-                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
-
-                // 展开当前面板
-                content.style.maxHeight = content.scrollHeight + "px";
-            }
-        });
-
-        header.addEventListener('contextmenu', function (e) {
-            e.preventDefault(); // 阻止浏览器默认右键菜单
-            console.log('鼠标右键被点击了', e);
-            // 在这里可以添加自定义逻辑，比如显示自定义菜单
-            menu.style.top = e.clientY + 'px';
-            menu.style.left = e.clientX + 'px';
-            menu.style.display = 'block';
-        });
-    });
 
     menu.addEventListener('click', function (e) {
         const action = e.target.id;
@@ -292,21 +381,6 @@
 
 
 
-    const markdownFromDB = `# 标题
-- 列表项 1
-- 列表项 2
-**加粗文字**
-`;
-    const wrapper = document.getElementById('editor-wrapper');
-    const height = wrapper.clientHeight;
-    const vditor = new Vditor('editor', {
-        height: height,
-        mode: 'ir',
-        cache: { enable: false },
-        value: markdownFromDB,
-        input: (value) => {
-            console.log('当前输入的内容：', value);
-        }
-    });
+
 
 </script>
