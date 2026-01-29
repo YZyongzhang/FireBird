@@ -59,6 +59,21 @@
         </li>
     </ul>
 
+    <!-- 弹出增加删除的菜单 -->
+    <div id="modal-mask" class="mask">
+        <!-- 弹出框 -->
+        <div class="modal">
+            <h3>新增文件</h3>
+
+            <input type="text" id="filename" placeholder="请输入文件名" />
+
+            <div class="modal-actions">
+                <button onclick="confirmAdd()">确定</button>
+                <button onclick="closeModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
@@ -241,12 +256,52 @@
     #sub-menu li:hover {
         background-color: #eee;
     }
+
+    .mask {
+        position: absolute;
+        top: 30%;
+        left: 40%;
+        background: rgba(0, 0, 0, 0.4);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+
+    /* 弹窗主体 */
+    .modal {
+        background: #fff;
+        padding: 20px;
+        width: 300px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+    }
+
+    .modal h3 {
+        margin-top: 0;
+    }
+
+    .modal input {
+        width: 100%;
+        padding: 8px;
+        margin: 10px 0;
+    }
+
+    .modal-actions {
+        text-align: right;
+    }
+
+    .modal-actions button {
+        margin-left: 10px;
+    }
 </style>
 
 <script src="/js/vditor.js"></script>
 
 <script>
     const menu = document.getElementById('context-menu');
+    const modal = document.getElementsByClassName('mask')[0];
+
     const markdownFromDB = `# 欢迎使用狂鸟 
 当一只鸟要起飞时，拦都拦不住`;
     const wrapper = document.getElementById('editor-wrapper');
@@ -364,32 +419,32 @@
 
     // 控制折叠面板折叠
     function header_listener(header) {
-        
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
 
-                // 如果已经展开，则收起
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = null;
-                } else {
-                    // 先关闭其他面板（可选，让只展开一个）
-                    document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
 
-                    // 展开当前面板
-                    content.style.maxHeight = content.scrollHeight + "px";
-                }
-            });
+            // 如果已经展开，则收起
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                // 先关闭其他面板（可选，让只展开一个）
+                document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
 
-            header.addEventListener('contextmenu', function (e) {
-                e.preventDefault(); // 阻止浏览器默认右键菜单
-                console.log('鼠标右键被点击了', e);
-                // 在这里可以添加自定义逻辑，比如显示自定义菜单
-                menu.style.top = e.clientY + 'px';
-                menu.style.left = e.clientX + 'px';
-                menu.style.display = 'block';
-                menu.dataset.key = header.textContent
-            });
-        
+                // 展开当前面板
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+
+        header.addEventListener('contextmenu', function (e) {
+            e.preventDefault(); // 阻止浏览器默认右键菜单
+            console.log('鼠标右键被点击了', e);
+            // 在这里可以添加自定义逻辑，比如显示自定义菜单
+            menu.style.top = e.clientY + 'px';
+            menu.style.left = e.clientX + 'px';
+            menu.style.display = 'block';
+            menu.dataset.key = header.textContent
+        });
+
     }
 
     // 对每一个可选项进行编号
@@ -398,21 +453,47 @@
 
     menu.addEventListener('click', function (e) {
         const action = e.target.id;
-        
-        if (action == "addCitem") {
-            key = menu.dataset.key
-            name = 'testF'
+
+        switch (action) {
+            case "addCitem":
+                modal.style.display = 'block';
+                modal.dataset.operate = 'addCitem';
+                break;
+            case "addFitem":
+                modal.style.display = 'block';
+                modal.dataset.operate = 'addFitem';
+                break;
+            default:
+                break
+        }
+        menu.style.display = 'none';
+    });
+
+    function confirmAdd() {
+        files_name = document.getElementById("filename")
+        name = files_name.value
+        files_name.value = ''
+        key = menu.dataset.key
+        if (modal.dataset.operate == "addCitem") {
             fetch('/addCitem', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key, name })
             });
-
+        } else {
+            if (modal.dataset.operate == "addFitem") {
+                fetch('/addFitem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, name })
+                });
+            }
         }
-        menu.style.display = 'none';
-    });
-
-
+        modal.style.display = "none"
+    }
+    function closeModal() {
+        modal.style.display = "none"
+    }
     document.addEventListener('click', function (e) {
         if (e.target !== menu) {
             menu.style.display = 'none';

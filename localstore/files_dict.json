@@ -9,6 +9,20 @@
       [
         "高阶",
         "localstore/markdown/高阶.md"
+      ],
+      [
+        "testF",
+        "/localstore/markdown/testF.md"
+      ],
+      [
+        "testF",
+        "/localstore/markdown/testF.md"
+      ]
+    ],
+    "测试": [
+      [
+        "测试",
+        "/localstore/markdown/测试.md"
       ]
     ]
   }

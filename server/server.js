@@ -77,6 +77,14 @@ app.post('/addCitem', async (req, res) => {
     res.json({ success: true });
 });
 
+app.post('/addFitem', async (req, res) => {
+    const {key, name } = req.body;
+    console.log(name)
+    files_dict['Path'][name] = []
+    fs.writeFileSync('localstore/files_dict.json', JSON.stringify(files_dict, null, 2), 'utf8');
+    res.json({ success: true });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
