@@ -74,7 +74,7 @@ app.post('/addCitem', async (req, res) => {
     files_dict['Path'][key].push([name, `/localstore/markdown/${name}.md`]);
     fs.writeFileSync(`localstore/markdown/${name}.md`, '', 'utf8');
     fs.writeFileSync('localstore/files_dict.json', JSON.stringify(files_dict, null, 2), 'utf8');
-    res.json({ success: true });
+    res.json({ success: true , path:`localstore/markdown/${name}.md`});
 });
 
 app.post('/addFitem', async (req, res) => {

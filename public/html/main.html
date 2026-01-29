@@ -301,7 +301,7 @@
 <script>
     const menu = document.getElementById('context-menu');
     const modal = document.getElementsByClassName('mask')[0];
-
+    const accordion = document.getElementsByClassName('accordion')[0];
     const markdownFromDB = `# 欢迎使用狂鸟 
 当一只鸟要起飞时，拦都拦不住`;
     const wrapper = document.getElementById('editor-wrapper');
@@ -325,7 +325,7 @@
         });
 
     function renderAccordion(data) {
-        const accordion = document.getElementsByClassName('accordion')[0];
+
 
         Object.entries(data.Path).forEach(([sectionName, items]) => {
             // 一级标题
@@ -479,7 +479,21 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key, name })
+            }).then(res => res.json())
+                .then(data => {
+                    path = data.path
+                });;
+            const content = document.createElement('div');
+            const father_content = [...document.querySelectorAll('.accordion-header')]
+                .find(el => el.textContent.trim() === key).nextElementSibling;
+
+            content.className = 'accordion-content';
+            content.textContent = name;
+            content.addEventListener('click', () => {
+                setCurrentFile(path);
+                loadMarkdown(path);
             });
+            father_content.appendChild(content);
         } else {
             if (modal.dataset.operate == "addFitem") {
                 fetch('/addFitem', {
@@ -487,6 +501,19 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key, name })
                 });
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'accordion-item';
+
+                const header = document.createElement('div');
+                header.className = 'accordion-header';
+                header.textContent = name;
+
+                const contents = document.createElement('div');
+                contents.className = 'accordion-contents';
+                itemDiv.appendChild(header);
+                itemDiv.appendChild(contents);
+                accordion.appendChild(itemDiv);
+                header_listener(header)
             }
         }
         modal.style.display = "none"
